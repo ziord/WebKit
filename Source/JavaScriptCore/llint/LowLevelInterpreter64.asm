@@ -697,6 +697,10 @@ macro loadConstantOrVariableCell(size, index, value, slow)
     btqnz value, notCellMask, slow
 end
 
+macro loadConstantOrVariableCellUnchecked(size, index, value)
+    loadConstantOrVariable(size, index, value)
+end
+
 macro writeBarrierOnCellWithReload(cell, reloadAfterSlowPath)
     skipIfIsRememberedOrInEden(
         cell,
@@ -1715,6 +1719,23 @@ llintOpWithMetadata(op_get_by_id_direct, OpGetByIdDirect, macro (size, get, disp
 .opGetByIdDirectSlow:
     callSlowPath(_llint_slow_path_get_by_id_direct)
     dispatch()
+end)
+
+llintOpWithMetadata(op_get_by_id_offset, OpGetByIdOffset, macro (size, get, dispatch, metadata, return)
+    # metadata(OpcodeID opcodeID, unsigned metadataID)
+    metadata(t2, t0)
+    # m_metadata->get<Metadata>()[metadataID]
+    get(m_base, t0)
+    # load object into t3 using size, and index t0 -- skip checks
+    loadConstantOrVariableCellUnchecked(size, t0, t3)
+    loadi OpGetByIdOffset::Metadata::m_offset[t2], t1
+    get(m_propertyOffset, t5)
+    # add the appropriate/direct offset to t1
+    addp t5, t1, t1
+    # propertyOffsetAsInt=t1, objectAndStorage=t3, value/propdst=t0
+    loadPropertyAtVariableOffset(t1, t3, t0)
+    valueProfile(size, OpGetByIdOffset, m_valueProfile, t0, t2)
+    return(t0)
 end)
 
 # The base object is expected in t3

@@ -696,6 +696,19 @@ op :get_by_id_direct,
         offset: unsigned,
     }
 
+op :get_by_id_offset,
+    args: {
+        dst: VirtualRegister,
+        base: VirtualRegister,
+        property: unsigned,
+        propertyOffset: unsigned,
+        valueProfile: unsigned, # not used in llint
+    },
+    metadata: {
+        structureID: StructureID,
+        offset: unsigned,
+    }
+
 op :try_get_by_id,
     args: {
         dst: VirtualRegister,

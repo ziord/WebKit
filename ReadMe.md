@@ -1,3 +1,12 @@
+## LTFOJR Patches
+
+- support new bytecode instruction
+- support bytecode in `llint`
+- support jit intrinsics for the new bytecode (`baseline` only)
+- allow access to most intrinsic functions
+
+---
+
 # WebKit with patches
 
 This is a build of WebKit with some extra patches used by [bun](https://bun.sh)

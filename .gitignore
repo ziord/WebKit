@@ -74,3 +74,15 @@ Source/ThirdParty/ANGLE/parsetab.py
 CMakeUserPresets.json
 
 bun-webkit-*
+
+**/.DS_Store
+.settings
+**/.vs
+**/.vscode/*
+#!**/.vscode/tasks.json
+!**/.vscode/settings.template.json
+!**/.vscode/launch.template.json
+!**/.vscode/tasks.template.json
+!**/.vscode/extensions.json
+Source/JavaScriptCore/.tests
+Source/JavaScriptCore/.things

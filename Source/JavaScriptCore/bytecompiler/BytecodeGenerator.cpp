@@ -2690,6 +2690,12 @@ RegisterID* BytecodeGenerator::emitDirectGetById(RegisterID* dst, RegisterID* ba
     return dst;
 }
 
+RegisterID* BytecodeGenerator::emitGetByIdOffset(RegisterID* dst, RegisterID* base, const Identifier& property, unsigned propertyOffset)
+{
+    OpGetByIdOffset::emit(this, kill(dst), base, addConstant(property), propertyOffset, nextValueProfileIndex());
+    return dst;
+}
+
 RegisterID* BytecodeGenerator::emitPutById(RegisterID* base, const Identifier& property, RegisterID* value)
 {
     ASSERT_WITH_MESSAGE(!parseIndex(property), "Indexed properties should be handled with put_by_val.");

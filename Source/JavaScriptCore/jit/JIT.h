@@ -417,6 +417,7 @@ namespace JSC {
         void emit_op_get_by_id(const JSInstruction*);
         void emit_op_get_by_id_with_this(const JSInstruction*);
         void emit_op_get_by_id_direct(const JSInstruction*);
+        void emit_op_get_by_id_offset(const JSInstruction*);
         void emit_op_get_by_val(const JSInstruction*);
         void emit_op_get_by_val_with_this(const JSInstruction*);
         void emit_op_get_private_name(const JSInstruction*);
@@ -571,6 +572,7 @@ namespace JSC {
         void emitSlow_op_get_by_id(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
         void emitSlow_op_get_by_id_with_this(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
         void emitSlow_op_get_by_id_direct(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
+        void emitSlow_op_get_by_id_offset(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
         void emitSlow_op_get_by_val(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
         void emitSlow_op_get_by_val_with_this(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);
         void emitSlow_op_get_private_name(const JSInstruction*, Vector<SlowCaseEntry>::iterator&);

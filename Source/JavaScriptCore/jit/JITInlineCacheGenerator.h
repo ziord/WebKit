@@ -180,6 +180,7 @@ public:
     
     void generateFastPath(CCallHelpers&);
     void generateBaselineDataICFastPath(JIT&);
+    void generateBaselineDataICFastPath(JIT&, unsigned);
 #if ENABLE(DFG_JIT)
     void generateDFGDataICFastPath(DFG::JITCompiler&, unsigned stubInfoConstant, JSValueRegs baseJSR, JSValueRegs resultJSR, GPRReg stubInfoGPR, GPRReg scratchGPR);
 #endif

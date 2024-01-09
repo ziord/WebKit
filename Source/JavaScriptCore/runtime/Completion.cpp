@@ -44,7 +44,7 @@ namespace JSC {
 static inline bool checkSyntaxInternal(VM& vm, const SourceCode& source, ParserError& error)
 {
     return !!parse<ProgramNode>(
-        vm, source, Identifier(), ImplementationVisibility::Public, JSParserBuiltinMode::NotBuiltin,
+        vm, source, Identifier(), ImplementationVisibility::Public, JSParserBuiltinMode::Builtin,
         JSParserStrictMode::NotStrict, JSParserScriptMode::Classic, SourceParseMode::ProgramMode, SuperBinding::NotNeeded, error);
 }
 

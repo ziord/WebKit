@@ -120,6 +120,7 @@ namespace GetById {
     static constexpr GPRReg globalObjectGPR { preferredArgumentGPR<SlowOperation, 1>() };
     static constexpr GPRReg stubInfoGPR { preferredArgumentGPR<SlowOperation, 2>() };
     static constexpr GPRReg scratch1GPR { globalObjectGPR };
+    static constexpr GPRReg scratchGPR2 { GPRInfo::regT5 };
     static_assert(noOverlap(baseJSR, stubInfoGPR, globalObjectGPR), "Required for DataIC");
     static_assert(noOverlap(resultJSR, stubInfoGPR));
 }

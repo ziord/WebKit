@@ -202,6 +202,8 @@ bool JSModuleNamespaceObject::put(JSCell* cell, JSGlobalObject* globalObject, Pr
     if (thisObject->m_isOverridingValue) {
         return true;
     }
+#else
+    UNUSED_PARAM(cell);
 #endif
 
     // http://www.ecma-international.org/ecma-262/6.0/#sec-module-namespace-exotic-objects-set-p-v-receiver

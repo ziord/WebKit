@@ -146,6 +146,12 @@ static void generateGetByIdInlineAccessBaselineDataIC(CCallHelpers& jit, GPRReg 
     done.link(&jit);
 }
 
+static void generateGetByIdInlineAccessBaselineDataIC(CCallHelpers& jit, JSValueRegs baseJSR, GPRReg scratchGPR, JSValueRegs resultJSR, unsigned propOffset)
+{
+    jit.move(MacroAssembler::TrustedImm32(static_cast<int32_t>(propOffset)), scratchGPR);
+    jit.loadProperty(baseJSR.payloadGPR(), scratchGPR, resultJSR);
+}
+
 void JITGetByIdGenerator::generateFastPath(CCallHelpers& jit)
 {
     ASSERT(m_stubInfo);
@@ -163,6 +169,18 @@ void JITGetByIdGenerator::generateBaselineDataICFastPath(JIT& jit)
     using BaselineJITRegisters::GetById::scratch1GPR;
 
     generateGetByIdInlineAccessBaselineDataIC(jit, stubInfoGPR, baseJSR, scratch1GPR, resultJSR);
+
+    m_done = jit.label();
+}
+
+void JITGetByIdGenerator::generateBaselineDataICFastPath(JIT& jit, unsigned propOffset)
+{
+    m_start = jit.label();
+    using BaselineJITRegisters::GetById::baseJSR;
+    using BaselineJITRegisters::GetById::resultJSR;
+    using BaselineJITRegisters::GetById::scratch1GPR;
+
+    generateGetByIdInlineAccessBaselineDataIC(jit, baseJSR, scratch1GPR, resultJSR, propOffset);
 
     m_done = jit.label();
 }

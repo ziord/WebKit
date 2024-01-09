@@ -43,6 +43,7 @@ enum class LinkTimeConstant : int32_t;
     macro(argumentCount) \
     macro(arrayPush) \
     macro(getByIdDirect) \
+    macro(getByIdOffset) \
     macro(getByIdDirectPrivate) \
     macro(getByValWithThis) \
     macro(getPrototypeOf) \

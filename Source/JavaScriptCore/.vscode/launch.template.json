@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "JSC Debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "<jsc-path>",
+            "args": [
+                "--reportBytecodeCompileTimes=true",
+                "--dumpGeneratedBytecodes=true",
+                "--useLLInt=false",
+                "--useBaselineJIT=true",
+                "--useConcurrentJIT=false",
+                "--thresholdForJITAfterWarmUp=10",
+                "--thresholdForJITSoon=10",
+                "<path/to/jsfile.js>"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "WebKit Debug Build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

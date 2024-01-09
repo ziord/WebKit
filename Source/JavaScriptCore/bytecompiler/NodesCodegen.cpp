@@ -1359,6 +1359,20 @@ RegisterID* BytecodeIntrinsicNode::emit_intrinsic_getByIdDirect(BytecodeGenerato
     return generator.emitDirectGetById(generator.finalDestination(dst), base.get(), ident);
 }
 
+RegisterID* BytecodeIntrinsicNode::emit_intrinsic_getByIdOffset(BytecodeGenerator& generator, RegisterID* dst)
+{
+    ArgumentListNode* node = m_args->m_listNode;
+    RefPtr<RegisterID> base = generator.emitNode(node);
+    node = node->m_next;
+    ASSERT(node->m_expr->isString());
+    const Identifier& ident = static_cast<StringNode*>(node->m_expr)->value();
+    ASSERT(node->m_next);
+    node = node->m_next;
+    ASSERT(node->m_expr->isNumber());
+    unsigned offset = (unsigned)(static_cast<NumberNode*>(node->m_expr)->value());
+    return generator.emitGetByIdOffset(generator.finalDestination(dst), base.get(), ident, offset);
+}
+
 RegisterID* BytecodeIntrinsicNode::emit_intrinsic_getByIdDirectPrivate(BytecodeGenerator& generator, RegisterID* dst)
 {
     ArgumentListNode* node = m_args->m_listNode;

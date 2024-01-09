@@ -91,6 +91,7 @@ void AbstractModuleRecord::addStarExportEntry(const Identifier& moduleName)
 void AbstractModuleRecord::addImportEntry(const ImportEntry& entry)
 {
     bool isNewEntry = m_importEntries.add(entry.localName.impl(), entry).isNewEntry;
+    (void)(isNewEntry);
     // This is guaranteed by the parser.
     ASSERT_WITH_MESSAGE(isNewEntry, "Duplicate import entry name '%s'", entry.localName.impl()->utf8().data());
 }
@@ -98,6 +99,7 @@ void AbstractModuleRecord::addImportEntry(const ImportEntry& entry)
 void AbstractModuleRecord::addExportEntry(const ExportEntry& entry)
 {
     bool isNewEntry = m_exportEntries.add(entry.exportName.impl(), entry).isNewEntry;
+    (void)(isNewEntry);
     // This is guaranteed by the parser.
     ASSERT_WITH_MESSAGE(isNewEntry, "Duplicate export entry name '%s'", entry.exportName.impl()->utf8().data());
 }

@@ -1570,6 +1570,20 @@ llintOpWithMetadata(op_get_by_id_direct, OpGetByIdDirect, macro (size, get, disp
     dispatch()
 end)
 
+llintOpWithMetadata(op_get_by_id_offset, OpGetByIdDirect, macro (size, get, dispatch, metadata, return)
+    metadata(t5, t0)
+    get(m_base, t0)
+    loadi OpGetByIdOffset::Metadata::m_structureID[t5], t1
+    loadConstantOrVariablePayloadUnchecked(size, t0, t3)
+    loadi OpGetByIdDirect::Metadata::m_offset[t5], t2
+    get(m_propertyOffset, t6)
+    addp t6, t2, t2 # add the appropriate offset to t2
+    # propertyOffset, objectAndStorage, tag (metadataID), payload (structureID)
+    loadPropertyAtVariableOffset(t2, t3, t0, t1)
+    valueProfile(size, OpGetByIdDirect, m_valueProfile, t0, t1, t5)
+    return(t0, t1)
+end)
+
 # Assumption: The base object is in t3
 # FIXME: this is very close to the 64bit version. Consider refactoring.
 macro performGetByIDHelper(opcodeStruct, modeMetadataName, valueProfileName, slowLabel, size, metadata, return)

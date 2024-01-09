@@ -949,6 +949,7 @@ template <bool shouldCreateIdentifier> ALWAYS_INLINE JSTokenType Lexer<LChar>::p
 
     bool isPrivateName = m_current == '#';
     bool isBuiltinName = m_current == '@' && m_parsingBuiltinFunction;
+    bool isModedBuiltinName = m_current == '$' && peek(1) == '_' && peek(2) == '_' && m_parsingBuiltinFunction;
     bool isWellKnownSymbol = false;
     if (isBuiltinName) {
         ASSERT(m_parsingBuiltinFunction);
@@ -957,6 +958,13 @@ template <bool shouldCreateIdentifier> ALWAYS_INLINE JSTokenType Lexer<LChar>::p
             isWellKnownSymbol = true;
             shift();
         }
+    } else if (isModedBuiltinName) {
+        // for ex: $__putByVal() ...
+        ASSERT(m_parsingBuiltinFunction);
+        shift(); // skip '$'
+        shift(); // skip '_'
+        shift(); // skip '_'
+        isBuiltinName = true;
     }
 
     const LChar* identifierStart = currentSourcePtr();

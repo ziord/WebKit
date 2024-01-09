@@ -597,6 +597,43 @@ void JIT::emitSlow_op_get_by_id_direct(const JSInstruction*, Vector<SlowCaseEntr
     emitNakedNearCall(InlineCacheCompiler::generateSlowPathCode(vm(), gen.accessType()).retaggedCode<NoPtrTag>());
 }
 
+void JIT::emit_op_get_by_id_offset(const JSInstruction* currentInstruction)
+{
+    auto bytecode = currentInstruction->as<OpGetByIdOffset>();
+    VirtualRegister resultVReg = bytecode.m_dst;
+    VirtualRegister baseVReg = bytecode.m_base;
+    const Identifier* ident = &(m_unlinkedCodeBlock->identifier(bytecode.m_property));
+
+    const auto propOffset = bytecode.m_propertyOffset;
+    using BaselineJITRegisters::GetById::baseJSR;
+    using BaselineJITRegisters::GetById::resultJSR;
+    using BaselineJITRegisters::GetById::stubInfoGPR;
+
+    emitGetVirtualRegister(baseVReg, baseJSR);
+
+    auto [ stubInfo, stubInfoIndex ] = addUnlinkedStructureStubInfo();
+    loadConstant(stubInfoIndex, stubInfoGPR);
+
+    JITGetByIdGenerator gen(
+        nullptr, stubInfo, JITType::BaselineJIT, CodeOrigin(m_bytecodeIndex), CallSiteIndex(m_bytecodeIndex), RegisterSetBuilder::stubUnavailableRegisters(),
+        CacheableIdentifier::createFromIdentifierOwnedByCodeBlock(m_unlinkedCodeBlock, *ident), baseJSR, resultJSR, stubInfoGPR, AccessType::GetByIdDirect);
+
+    gen.generateBaselineDataICFastPath(*this, propOffset);
+
+    setFastPathResumePoint();
+    emitValueProfilingSite(bytecode, resultJSR);
+    emitPutVirtualRegister(resultVReg, resultJSR);
+}
+
+void JIT::emitSlow_op_get_by_id_offset(const JSInstruction*, Vector<SlowCaseEntry>::iterator& iter)
+{
+    ASSERT(BytecodeIndex(m_bytecodeIndex.offset()) == m_bytecodeIndex);
+    JITGetByIdGenerator& gen = m_getByIds[m_getByIdIndex++];
+    linkAllSlowCases(iter);
+    gen.reportBaselineDataICSlowPathBegin(label());
+    emitNakedNearCall(InlineCacheCompiler::generateSlowPathCode(vm(), gen.accessType()).retaggedCode<NoPtrTag>());
+}
+
 void JIT::emit_op_get_by_id(const JSInstruction* currentInstruction)
 {
     auto bytecode = currentInstruction->as<OpGetById>();

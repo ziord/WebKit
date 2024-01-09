@@ -483,6 +483,7 @@ void computeDefsForBytecodeIndexImpl(unsigned numVars, const JSInstruction* inst
     DEFS(OpConstruct, dst)
     DEFS(OpTryGetById, dst)
     DEFS(OpGetById, dst)
+    DEFS(OpGetByIdOffset, dst)
     DEFS(OpGetByIdDirect, dst)
     DEFS(OpGetByIdWithThis, dst)
     DEFS(OpGetByValWithThis, dst)
