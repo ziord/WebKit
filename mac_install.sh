@@ -3,6 +3,7 @@
 set -euxo pipefail
 
 # installs webkit for bun
+CMAKE_BUILD_TYPE=$1
 
 THIS_DIR=$(pwd)
 
@@ -11,16 +12,15 @@ CMAKE_C_COMPILER="$(which clang-16)"
 CMAKE_CXX_COMPILER="$(dirname ${CMAKE_C_COMPILER})"/clang++
 CMAKE_C_FLAGS=${CMAKE_C_FLAGS:-}
 CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS:-}
-CMAKE_BUILD_TYPE=$1
 BUILD_DIR="$(dirname "$(readlink -f "$0")")"/WebKitBuild
 PACKAGE_JSON_LABEL=${PACKAGE_JSON_LABEL:-bun-webkit-$CMAKE_BUILD_TYPE}
 PACKAGE_JSON_ARCH=$(arch)
 GITHUB_REPOSITORY=ziord/WebKit
 GIT_SHA=$(git rev-parse --verify HEAD)
 
-rm -rf $BUILD_DIR/Release $BUILD_DIR/bun-webkit $BUILD_DIR/bun-webkit.tar.gz
-mkdir -p $BUILD_DIR/Release
-cd $BUILD_DIR/Release
+rm -rf $BUILD_DIR/$CMAKE_BUILD_TYPE $BUILD_DIR/bun-webkit $BUILD_DIR/bun-webkit.tar.gz
+mkdir -p $BUILD_DIR/$CMAKE_BUILD_TYPE
+cd $BUILD_DIR/$CMAKE_BUILD_TYPE
 cmake \
     -DPORT="JSCOnly" \
     -DENABLE_STATIC_JSC=ON \
@@ -44,17 +44,17 @@ cmake \
     -DUSE_PTHREAD_JIT_PERMISSIONS_API=ON \
     -DENABLE_REMOTE_INSPECTOR=ON \
     $THIS_DIR \
-    $BUILD_DIR/Release &&
-    cmake --build $BUILD_DIR/Release --config $CMAKE_BUILD_TYPE --target jsc
+    $BUILD_DIR/$CMAKE_BUILD_TYPE &&
+    cmake --build $BUILD_DIR/$CMAKE_BUILD_TYPE --config $CMAKE_BUILD_TYPE --target jsc
 mkdir -p $BUILD_DIR/bun-webkit/lib $BUILD_DIR/bun-webkit/include $BUILD_DIR/bun-webkit/include/JavaScriptCore $BUILD_DIR/bun-webkit/include/wtf $BUILD_DIR/bun-webkit/include/bmalloc
-cp $BUILD_DIR/Release/lib/* $BUILD_DIR/bun-webkit/lib
-cp -r $BUILD_DIR/Release/cmakeconfig.h $BUILD_DIR/bun-webkit/include/cmakeconfig.h
+cp $BUILD_DIR/$CMAKE_BUILD_TYPE/lib/* $BUILD_DIR/bun-webkit/lib
+cp -r $BUILD_DIR/$CMAKE_BUILD_TYPE/cmakeconfig.h $BUILD_DIR/bun-webkit/include/cmakeconfig.h
 echo "#define BUN_WEBKIT_VERSION \"$GIT_SHA\"" >>$BUILD_DIR/bun-webkit/include/cmakeconfig.h
-cp -r $BUILD_DIR/Release/WTF/Headers/wtf $BUILD_DIR/bun-webkit/include
-cp -r $BUILD_DIR/Release/ICU/Headers/* $BUILD_DIR/bun-webkit/include
-cp -r $BUILD_DIR/Release/bmalloc/Headers/bmalloc $BUILD_DIR/bun-webkit/include
-cp $BUILD_DIR/Release/JavaScriptCore/Headers/JavaScriptCore/* $BUILD_DIR/bun-webkit/include/JavaScriptCore
-cp $BUILD_DIR/Release/JavaScriptCore/PrivateHeaders/JavaScriptCore/* $BUILD_DIR/bun-webkit/include/JavaScriptCore
+cp -r $BUILD_DIR/$CMAKE_BUILD_TYPE/WTF/Headers/wtf $BUILD_DIR/bun-webkit/include
+cp -r $BUILD_DIR/$CMAKE_BUILD_TYPE/ICU/Headers/* $BUILD_DIR/bun-webkit/include
+cp -r $BUILD_DIR/$CMAKE_BUILD_TYPE/bmalloc/Headers/bmalloc $BUILD_DIR/bun-webkit/include
+cp $BUILD_DIR/$CMAKE_BUILD_TYPE/JavaScriptCore/Headers/JavaScriptCore/* $BUILD_DIR/bun-webkit/include/JavaScriptCore
+cp $BUILD_DIR/$CMAKE_BUILD_TYPE/JavaScriptCore/PrivateHeaders/JavaScriptCore/* $BUILD_DIR/bun-webkit/include/JavaScriptCore
 mkdir -p $BUILD_DIR/bun-webkit/Source/JavaScriptCore
 cp -r $THIS_DIR/Source/JavaScriptCore/Scripts $BUILD_DIR/bun-webkit/Source/JavaScriptCore
 cp $THIS_DIR/Source/JavaScriptCore/create_hash_table $BUILD_DIR/bun-webkit/Source/JavaScriptCore
