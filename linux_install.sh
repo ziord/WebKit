@@ -2,7 +2,7 @@
 
 # Set variables
 MARCH_FLAG=""
-WEBKIT_RELEASE_TYPE=Release
+WEBKIT_RELEASE_TYPE=$1
 CPU=native
 LTO_FLAG="-flto='full'"
 
