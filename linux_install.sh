@@ -15,8 +15,11 @@ install_packages() {
 install_packages ca-certificates curl wget lsb-release software-properties-common gnupg gnupg1 gnupg2
 
 # Install LLVM
-wget https://apt.llvm.org/llvm.sh
-chmod +x llvm.sh
+if [ ! -e llvm.sh ]
+then
+    wget https://apt.llvm.org/llvm.sh
+    chmod +x llvm.sh
+fi
 ./llvm.sh 16
 
 # Install additional packages
@@ -42,17 +45,15 @@ install_packages \
 # Set environment variables
 export CXX=clang++-16
 export CC=clang-16
-export WEBKIT_OUT_DIR=/webkitbuild
+export WEBKIT_SRC_DIR="$PWD"
+export WEBKIT_BUILD_DIR="$PWD/WebKitBuild/webkitbuild"
+export OUTPUT_DIR="$PWD/WebKitBuild/bun-webkit"
 
 # Create output directories
-mkdir -p /output/lib /output/include /output/include/JavaScriptCore /output/include/wtf /output/include/bmalloc
+mkdir -p $OUTPUT_DIR/lib $OUTPUT_DIR/include $OUTPUT_DIR/include/JavaScriptCore $OUTPUT_DIR/include/wtf $OUTPUT_DIR/include/bmalloc
 
 # Copy ICU libraries to output
-cp -r /usr/lib/$(uname -m)-linux-gnu/libicu* /output/lib
-
-# Copy files
-cp -r . /webkit
-cd /webkit
+cp -r /usr/lib/$(uname -m)-linux-gnu/libicu* $OUTPUT_DIR/lib
 
 # Set environment variables
 export CPU=${CPU}
@@ -63,8 +64,8 @@ export LTO_FLAG=${LTO_FLAG}
 CFLAGS="$CFLAGS $LTO_FLAG -ffat-lto-objects $MARCH_FLAG -mtune=$CPU"
 CXXFLAGS="$CXXFLAGS $LTO_FLAG -ffat-lto-objects $MARCH_FLAG -mtune=$CPU"
 
-mkdir -p /webkitbuild
-cd /webkitbuild
+mkdir -p "$WEBKIT_BUILD_DIR"
+cd "$WEBKIT_BUILD_DIR"
 cmake \
     -DPORT="JSCOnly" \
     -DENABLE_STATIC_JSC=ON \
@@ -76,23 +77,23 @@ cmake \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DALLOW_LINE_AND_COLUMN_NUMBER_IN_BUILTINS=ON \
     -DENABLE_SINGLE_THREADED_VM_ENTRY_SCOPE=ON \
-    -G Ninja \ 
+    -G Ninja \
     -DCMAKE_CXX_COMPILER=$(which clang++-16) \
     -DCMAKE_C_COMPILER=$(which clang-16) \
     -DCMAKE_C_FLAGS="$CFLAGS" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-    /webkit
+    "$WEBKIT_SRC_DIR"
 
-cd /webkitbuild
-CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake --build /webkitbuild --config $WEBKIT_RELEASE_TYPE --target "jsc"
-cp -r $WEBKIT_OUT_DIR/lib/*.a /output/lib
-cp $WEBKIT_OUT_DIR/*.h /output/include
-find $WEBKIT_OUT_DIR/JavaScriptCore/Headers/JavaScriptCore/ -name "*.h" -exec cp {} /output/include/JavaScriptCore/ \;
-find $WEBKIT_OUT_DIR/JavaScriptCore/PrivateHeaders/JavaScriptCore/ -name "*.h" -exec cp {} /output/include/JavaScriptCore/ \;
-cp -r $WEBKIT_OUT_DIR/WTF/Headers/wtf/ /output/include
-cp -r $WEBKIT_OUT_DIR/bmalloc/Headers/bmalloc/ /output/include
-mkdir -p /output/Source/JavaScriptCore
-cp -r /webkit/Source/JavaScriptCore/Scripts /output/Source/JavaScriptCore
-cp /webkit/Source/JavaScriptCore/create_hash_table /output/Source/JavaScriptCore
+cd "$WEBKIT_BUILD_DIR"
+CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake --build "$WEBKIT_BUILD_DIR" --config $WEBKIT_RELEASE_TYPE --target "jsc"
+cp -r $WEBKIT_BUILD_DIR/lib/*.a $OUTPUT_DIR/lib
+cp $WEBKIT_BUILD_DIR/*.h $OUTPUT_DIR/include
+find $WEBKIT_BUILD_DIR/JavaScriptCore/Headers/JavaScriptCore/ -name "*.h" -exec cp {} $OUTPUT_DIR/include/JavaScriptCore/ \;
+find $WEBKIT_BUILD_DIR/JavaScriptCore/PrivateHeaders/JavaScriptCore/ -name "*.h" -exec cp {} $OUTPUT_DIR/include/JavaScriptCore/ \;
+cp -r $WEBKIT_BUILD_DIR/WTF/Headers/wtf/ $OUTPUT_DIR/include
+cp -r $WEBKIT_BUILD_DIR/bmalloc/Headers/bmalloc/ $OUTPUT_DIR/include
+mkdir -p $OUTPUT_DIR/Source/JavaScriptCore
+cp -r "$WEBKIT_SRC_DIR"/Source/JavaScriptCore/Scripts $OUTPUT_DIR/Source/JavaScriptCore
+cp "$WEBKIT_SRC_DIR"/Source/JavaScriptCore/create_hash_table $OUTPUT_DIR/Source/JavaScriptCore
 
 echo "Build completed."
